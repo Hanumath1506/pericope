@@ -3,8 +3,6 @@ import uuid
 from datetime import datetime
 from config import get_firestore, get_storage
 
-UPLOAD_DIR = "./uploaded_pdfs"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # ── Firestore ─────────────────────────────────────────────────────────────────
 
@@ -60,20 +58,23 @@ def delete_paper_doc(paper_id: str):
     db = get_firestore()
     db.collection("papers").document(paper_id).delete()
 
-# ── Storage (local) ───────────────────────────────────────────────────────────
+# ── Storage (Firebase) ────────────────────────────────────────────────────────
 
 def upload_pdf(paper_id: str, pdf_bytes: bytes, filename: str) -> str:
-    path = os.path.join(UPLOAD_DIR, f"{paper_id}_{filename}")
-    with open(path, "wb") as f:
-        f.write(pdf_bytes)
-    return path
+    bucket = get_storage()
+    blob = bucket.blob(f"papers/{paper_id}/{filename}")
+    blob.upload_from_string(pdf_bytes, content_type="application/pdf")
+    return blob.name
 
 def download_pdf(paper_id: str, filename: str) -> bytes:
-    path = os.path.join(UPLOAD_DIR, f"{paper_id}_{filename}")
-    with open(path, "rb") as f:
-        return f.read()
+    bucket = get_storage()
+    blob = bucket.blob(f"papers/{paper_id}/{filename}")
+    return blob.download_as_bytes()
 
 def delete_pdf(paper_id: str, filename: str):
-    path = os.path.join(UPLOAD_DIR, f"{paper_id}_{filename}")
-    if os.path.exists(path):
-        os.remove(path)
+    bucket = get_storage()
+    blob = bucket.blob(f"papers/{paper_id}/{filename}")
+    try:
+        blob.delete()
+    except Exception:
+        pass
