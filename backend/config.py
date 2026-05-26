@@ -1,7 +1,7 @@
 import os
 from firebase_admin import credentials, initialize_app, storage, firestore
 import firebase_admin
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -31,12 +31,10 @@ def get_storage():
 
 _embedding_model = None
 
-def get_embedding_model() -> SentenceTransformer:
+def get_embedding_model() -> TextEmbedding:
     global _embedding_model
     if _embedding_model is None:
-        _embedding_model = SentenceTransformer(
-            os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
-        )
+        _embedding_model = TextEmbedding("BAAI/bge-small-en-v1.5")
     return _embedding_model
 
 def get_groq_client() -> Groq:

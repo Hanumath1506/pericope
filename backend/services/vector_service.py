@@ -6,7 +6,7 @@ from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, Fi
 from config import get_embedding_model
 
 COLLECTION_NAME = "pericope_papers"
-VECTOR_SIZE = 384  # all-MiniLM-L6-v2 output size
+VECTOR_SIZE = 384
 
 _qdrant_client = None
 
@@ -17,7 +17,6 @@ def get_qdrant_client() -> QdrantClient:
             url=os.getenv("QDRANT_URL"),
             api_key=os.getenv("QDRANT_API_KEY"),
         )
-        # Create collection if it doesn't exist
         existing = [c.name for c in _qdrant_client.get_collections().collections]
         if COLLECTION_NAME not in existing:
             _qdrant_client.create_collection(
@@ -27,10 +26,15 @@ def get_qdrant_client() -> QdrantClient:
     return _qdrant_client
 
 
-def embed_and_store(paper_id: str, chunks: List[str]) -> None:
+def embed_texts(texts: List[str]) -> List[List[float]]:
     model = get_embedding_model()
+    embeddings = list(model.embed(texts))
+    return [e.tolist() for e in embeddings]
+
+
+def embed_and_store(paper_id: str, chunks: List[str]) -> None:
     client = get_qdrant_client()
-    embeddings = model.encode(chunks, show_progress_bar=False).tolist()
+    embeddings = embed_texts(chunks)
     points = [
         PointStruct(
             id=str(uuid.uuid4()),
@@ -43,9 +47,8 @@ def embed_and_store(paper_id: str, chunks: List[str]) -> None:
 
 
 def similarity_search(paper_id: str, query: str, top_k: int = 5) -> List[str]:
-    model = get_embedding_model()
     client = get_qdrant_client()
-    query_embedding = model.encode([query]).tolist()[0]
+    query_embedding = embed_texts([query])[0]
     results = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_embedding,
@@ -58,9 +61,8 @@ def similarity_search(paper_id: str, query: str, top_k: int = 5) -> List[str]:
 
 
 def cross_paper_search(query: str, top_k: int = 10) -> List[dict]:
-    model = get_embedding_model()
     client = get_qdrant_client()
-    query_embedding = model.encode([query]).tolist()[0]
+    query_embedding = embed_texts([query])[0]
     results = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_embedding,

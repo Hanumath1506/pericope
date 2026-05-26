@@ -26,7 +26,7 @@ def chat_with_context(query: str, context_chunks: List[str], history: List[dict]
 
 def generate_summary(text: str) -> dict:
     client = get_groq_client()
-    words = text.split()[:1500]
+    words = text.split()[:500]
     excerpt = " ".join(words)
     prompt = (
         "Analyze this research paper excerpt and return a JSON object with exactly these keys:\n"
@@ -64,8 +64,8 @@ def synthesize_across_papers(query: str, grouped_results: list) -> str:
     response = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=300,
-        temperature=0.2,
+        max_tokens=400,
+        temperature=0.1,
     )
     return response.choices[0].message.content
 
