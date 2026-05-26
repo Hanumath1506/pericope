@@ -16,6 +16,7 @@ _qdrant_client = None
 def get_qdrant_client() -> QdrantClient:
     global _qdrant_client
     if _qdrant_client is None:
+        from qdrant_client.models import PayloadSchemaType
         _qdrant_client = QdrantClient(
             url=os.getenv("QDRANT_URL"),
             api_key=os.getenv("QDRANT_API_KEY"),
@@ -26,6 +27,15 @@ def get_qdrant_client() -> QdrantClient:
                 collection_name=COLLECTION_NAME,
                 vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
             )
+        # Create payload index for paper_id filtering
+        try:
+            _qdrant_client.create_payload_index(
+                collection_name=COLLECTION_NAME,
+                field_name="paper_id",
+                field_schema=PayloadSchemaType.KEYWORD,
+            )
+        except Exception:
+            pass  # index may already exist
     return _qdrant_client
 
 
