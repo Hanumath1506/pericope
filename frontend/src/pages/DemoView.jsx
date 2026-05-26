@@ -13,10 +13,14 @@ export default function DemoView({ onSignIn }) {
   const bottomRef = useRef();
 
   useEffect(() => {
-    api.listDemoPapers().then(data => {
-      setPapers(data);
-      setLoadingPapers(false);
-    }).catch(() => setLoadingPapers(false));
+    api.listDemoPapers()
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPapers(data);
+        }
+        setLoadingPapers(false);
+      })
+      .catch(() => setLoadingPapers(false));
   }, []);
 
   useEffect(() => {

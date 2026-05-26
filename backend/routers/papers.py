@@ -81,9 +81,11 @@ def delete_paper(paper_id: str, user_id: str = Depends(verify_token)):
 @router.get("/demo")
 def list_demo_papers():
     """Public endpoint — no auth required."""
+    from config import get_firestore
+    db = get_firestore()
     papers = []
     for pid in DEMO_PAPER_IDS:
-        paper = get_paper(pid)
-        if paper:
-            papers.append(paper)
+        doc = db.collection("papers").document(pid).get()
+        if doc.exists:
+            papers.append(doc.to_dict())
     return papers
