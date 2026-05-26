@@ -1,6 +1,6 @@
 import { useAuth } from "../hooks/useAuth";
 
-export default function Login() {
+export default function Login({ onTryDemo }) {
   const { login } = useAuth();
 
   return (
@@ -29,12 +29,18 @@ export default function Login() {
       <div style={styles.right}>
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Sign in</h2>
-          <p style={styles.cardSub}>Continue with your Google account</p>
+          <p style={styles.cardSub}>Continue with your Google account to upload and manage your own papers.</p>
           <button style={styles.btn} onClick={login}>
             <GoogleIcon />
             Continue with Google
           </button>
-          <p style={styles.note}>Free. No credit card required.</p>
+          <div style={styles.divider}>
+            <span style={styles.dividerText}>or</span>
+          </div>
+          <button style={styles.demoBtn} onClick={onTryDemo}>
+            Try the demo →
+          </button>
+          <p style={styles.note}>Demo includes 3 pre-loaded landmark AI papers.</p>
         </div>
       </div>
     </div>
@@ -53,9 +59,7 @@ function GoogleIcon() {
 }
 
 const styles = {
-  wrap: {
-    display: "flex", minHeight: "100vh",
-  },
+  wrap: { display: "flex", minHeight: "100vh" },
   left: {
     flex: 1, padding: "80px 64px",
     display: "flex", flexDirection: "column", justifyContent: "center",
@@ -95,9 +99,7 @@ const styles = {
     border: "1px solid var(--border)",
     borderRadius: "8px", padding: "40px",
   },
-  cardTitle: {
-    fontSize: "24px", marginBottom: "8px",
-  },
+  cardTitle: { fontSize: "24px", marginBottom: "8px" },
   cardSub: {
     color: "var(--text-2)", fontSize: "14px", marginBottom: "32px",
   },
@@ -106,6 +108,20 @@ const styles = {
     display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
     background: "transparent", border: "1px solid var(--border-light)",
     borderRadius: "var(--radius)", color: "var(--text)",
+    fontSize: "14px", cursor: "pointer", transition: "all 0.15s",
+  },
+  divider: {
+    display: "flex", alignItems: "center",
+    margin: "20px 0", gap: "12px",
+  },
+  dividerText: {
+    color: "var(--text-3)", fontSize: "12px",
+    fontFamily: "'DM Mono', monospace",
+  },
+  demoBtn: {
+    width: "100%", padding: "12px 20px",
+    background: "var(--accent-glow)", border: "1px solid var(--accent-dim)",
+    borderRadius: "var(--radius)", color: "var(--accent)",
     fontSize: "14px", cursor: "pointer", transition: "all 0.15s",
   },
   note: {

@@ -46,3 +46,25 @@ def get_chat_history(paper_id: str, user_id: str = Depends(verify_token)):
     if paper["user_id"] != user_id:
         raise HTTPException(403, "Access denied.")
     return get_messages(paper_id)
+
+
+@router.post("/demo")
+def demo_chat(req: ChatRequest):
+    """Public chat endpoint for demo papers — no auth required."""
+    if req.paper_id not in [
+        "5084a3ad-000e-45be-8019-85909eb0f303",
+        "a0b2fe51-f86b-48b6-a43f-1bcf5f64f4cc",
+        "f4ee4f6d-4ea1-44cf-b6fd-553438be478b",
+    ]:
+        raise HTTPException(403, "Not a demo paper.")
+
+    paper = get_paper(req.paper_id)
+    if not paper or paper["status"] != "ready":
+        raise HTTPException(400, "Demo paper not ready.")
+
+    chunks = similarity_search(req.paper_id, req.message, top_k=5)
+    if not chunks:
+        raise HTTPException(500, "No context found.")
+
+    answer = chat_with_context(req.message, chunks, [])
+    return {"answer": answer, "sources": chunks}

@@ -8,6 +8,12 @@ from services.pdf_service import parse_pdf_bytes, chunk_text
 from services.vector_service import embed_and_store, delete_paper_vectors
 from services.llm_service import generate_summary
 
+DEMO_PAPER_IDS = [
+    "5084a3ad-000e-45be-8019-85909eb0f303",
+    "a0b2fe51-f86b-48b6-a43f-1bcf5f64f4cc",
+    "f4ee4f6d-4ea1-44cf-b6fd-553438be478b",
+]
+
 router = APIRouter(prefix="/papers", tags=["papers"])
 
 
@@ -70,3 +76,14 @@ def delete_paper(paper_id: str, user_id: str = Depends(verify_token)):
         pass
     delete_paper_doc(paper_id)
     return {"deleted": True}
+
+
+@router.get("/demo")
+def list_demo_papers():
+    """Public endpoint — no auth required."""
+    papers = []
+    for pid in DEMO_PAPER_IDS:
+        paper = get_paper(pid)
+        if paper:
+            papers.append(paper)
+    return papers

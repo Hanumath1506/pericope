@@ -54,4 +54,14 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, top_k: 10 }),
     }),
+
+  listDemoPapers: () =>
+    fetch(`${BASE}/papers/demo`).then(r => r.json()),
+
+  demoChat: (paperId, message) =>
+    fetch(`${BASE}/chat/demo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paper_id: paperId, message }),
+    }).then(r => r.json()),
 };
