@@ -7,6 +7,7 @@ from services.firebase_service import (
 from services.pdf_service import parse_pdf_bytes, chunk_text
 from services.vector_service import embed_and_store, delete_paper_vectors
 from services.llm_service import generate_summary
+from config import get_firestore
 
 DEMO_PAPER_IDS = [
     "5084a3ad-000e-45be-8019-85909eb0f303",
@@ -29,6 +30,18 @@ def process_paper(paper_id: str, pdf_bytes: bytes):
         raise e
 
 
+@router.get("/demo")
+def list_demo_papers():
+    """Public endpoint — no auth required."""
+    db = get_firestore()
+    papers = []
+    for pid in DEMO_PAPER_IDS:
+        doc = db.collection("papers").document(pid).get()
+        if doc.exists:
+            papers.append(doc.to_dict())
+    return papers
+
+
 @router.post("/upload")
 async def upload_paper(
     background_tasks: BackgroundTasks,
@@ -37,6 +50,8 @@ async def upload_paper(
 ):
     if not file.filename.endswith(".pdf"):
         raise HTTPException(400, "Only PDF files are supported.")
+    if file.size and file.size > 10 * 1024 * 1024:
+        raise HTTPException(400, "File too large. Maximum size is 10MB.")
     pdf_bytes = await file.read()
     paper_id = create_paper_doc(user_id=user_id, filename=file.filename)
     upload_pdf(paper_id, pdf_bytes, file.filename)
@@ -76,16 +91,3 @@ def delete_paper(paper_id: str, user_id: str = Depends(verify_token)):
         pass
     delete_paper_doc(paper_id)
     return {"deleted": True}
-
-
-@router.get("/demo")
-def list_demo_papers():
-    """Public endpoint — no auth required."""
-    from config import get_firestore
-    db = get_firestore()
-    papers = []
-    for pid in DEMO_PAPER_IDS:
-        doc = db.collection("papers").document(pid).get()
-        if doc.exists:
-            papers.append(doc.to_dict())
-    return papers
