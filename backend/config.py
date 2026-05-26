@@ -1,7 +1,6 @@
 import os
 from firebase_admin import credentials, initialize_app, storage, firestore
 import firebase_admin
-from fastembed import TextEmbedding
 from groq import Groq
 from dotenv import load_dotenv
 
@@ -28,14 +27,6 @@ def get_firestore():
 
 def get_storage():
     return storage.bucket()
-
-_embedding_model = None
-
-def get_embedding_model() -> TextEmbedding:
-    global _embedding_model
-    if _embedding_model is None:
-        _embedding_model = TextEmbedding("BAAI/bge-small-en-v1.5")
-    return _embedding_model
 
 def get_groq_client() -> Groq:
     return Groq(api_key=os.getenv("GROQ_API_KEY"))

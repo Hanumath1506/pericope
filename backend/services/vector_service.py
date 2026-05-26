@@ -1,14 +1,17 @@
 import os
 import uuid
+import httpx
 from typing import List
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchValue
-from config import get_embedding_model
 
 COLLECTION_NAME = "pericope_papers"
 VECTOR_SIZE = 384
+HF_MODEL = "BAAI/bge-small-en-v1.5"
+HF_API_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}/pipeline/feature-extraction"
 
 _qdrant_client = None
+
 
 def get_qdrant_client() -> QdrantClient:
     global _qdrant_client
@@ -27,21 +30,33 @@ def get_qdrant_client() -> QdrantClient:
 
 
 def embed_texts(texts: List[str]) -> List[List[float]]:
-    model = get_embedding_model()
-    embeddings = list(model.embed(texts))
-    return [e.tolist() for e in embeddings]
+    headers = {"Authorization": f"Bearer {os.getenv('HF_API_KEY')}"}
+    response = httpx.post(
+        HF_API_URL,
+        headers=headers,
+        json={"inputs": texts, "options": {"wait_for_model": True}},
+        timeout=60.0,
+    )
+    response.raise_for_status()
+    return response.json()
 
 
 def embed_and_store(paper_id: str, chunks: List[str]) -> None:
     client = get_qdrant_client()
-    embeddings = embed_texts(chunks)
+    # Process in batches of 32 to avoid HF API limits
+    all_embeddings = []
+    for i in range(0, len(chunks), 32):
+        batch = chunks[i:i+32]
+        embeddings = embed_texts(batch)
+        all_embeddings.extend(embeddings)
+
     points = [
         PointStruct(
             id=str(uuid.uuid4()),
             vector=embedding,
             payload={"paper_id": paper_id, "text": chunk},
         )
-        for chunk, embedding in zip(chunks, embeddings)
+        for chunk, embedding in zip(chunks, all_embeddings)
     ]
     client.upsert(collection_name=COLLECTION_NAME, points=points)
 
