@@ -49,19 +49,25 @@ def generate_summary(text: str) -> dict:
 def synthesize_across_papers(query: str, grouped_results: list) -> str:
     client = get_groq_client()
     context = ""
-    for g in grouped_results:
+    for g in grouped_results[:3]:  # max 3 papers
         context += f"\n\n### From: {g['title']}\n"
-        context += "\n".join(g["chunks"])
+        # only first 150 words per paper
+        words = " ".join(g["chunks"]).split()[:150]
+        context += " ".join(words)
+
     prompt = (
-        "You are a research assistant. Answer the user's question by synthesizing "
-        "information from multiple papers. For each point, cite which paper it comes "
-        "from using the paper title in brackets like [Paper Title]. Be concise and analytical.\n\n"
+        "Answer the question by synthesizing from these paper excerpts. "
+        "Cite papers in brackets. Be very brief.\n\n"
         f"QUESTION: {query}\n\n"
         f"SOURCES:\n{context}"
     )
     response = client.chat.completions.create(
-        model=MODEL, messages=[{"role": "user", "content": prompt}],
-        max_tokens=1024, temperature=0.2,
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=300,
+        temperature=0.2,
     )
     return response.choices[0].message.content
+
+
 

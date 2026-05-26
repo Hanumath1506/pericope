@@ -1,5 +1,4 @@
 import os
-import chromadb
 from firebase_admin import credentials, initialize_app, storage, firestore
 import firebase_admin
 from sentence_transformers import SentenceTransformer
@@ -29,10 +28,6 @@ def get_firestore():
 
 def get_storage():
     return storage.bucket()
-
-chroma_client = chromadb.PersistentClient(
-    path=os.getenv("CHROMA_DB_PATH", "./chroma_db")
-)
 
 _embedding_model = None
 
