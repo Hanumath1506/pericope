@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from auth import verify_token
 from services.vector_service import cross_paper_search
 from services.firebase_service import get_paper
 from services.llm_service import synthesize_across_papers
@@ -13,7 +14,7 @@ class SearchRequest(BaseModel):
 
 
 @router.post("/")
-def search(req: SearchRequest, x_user_id: str = Header(...)):
+def search(req: SearchRequest, user_id: str = Depends(verify_token)):
     results = cross_paper_search(req.query, top_k=req.top_k)
 
     paper_cache = {}
@@ -22,7 +23,7 @@ def search(req: SearchRequest, x_user_id: str = Header(...)):
         pid = r["paper_id"]
         if pid not in paper_cache:
             paper = get_paper(pid)
-            if not paper or paper.get("user_id") != x_user_id:
+            if not paper or paper.get("user_id") != user_id:
                 continue
             paper_cache[pid] = paper
         paper = paper_cache.get(pid)

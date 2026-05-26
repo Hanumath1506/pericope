@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
+from auth import verify_token
 from services.firebase_service import get_paper, save_message, get_messages
 from services.vector_service import similarity_search
 from services.llm_service import chat_with_context
@@ -13,10 +14,12 @@ class ChatRequest(BaseModel):
 
 
 @router.post("/")
-def chat(req: ChatRequest):
+def chat(req: ChatRequest, user_id: str = Depends(verify_token)):
     paper = get_paper(req.paper_id)
     if not paper:
         raise HTTPException(404, "Paper not found.")
+    if paper["user_id"] != user_id:
+        raise HTTPException(403, "Access denied.")
     if paper["status"] != "ready":
         raise HTTPException(400, f"Paper is still {paper['status']}.")
 
@@ -36,5 +39,10 @@ def chat(req: ChatRequest):
 
 
 @router.get("/{paper_id}/history")
-def get_chat_history(paper_id: str):
+def get_chat_history(paper_id: str, user_id: str = Depends(verify_token)):
+    paper = get_paper(paper_id)
+    if not paper:
+        raise HTTPException(404, "Paper not found.")
+    if paper["user_id"] != user_id:
+        raise HTTPException(403, "Access denied.")
     return get_messages(paper_id)

@@ -21,7 +21,7 @@ export default function Dashboard({ onOpenPaper }) {
 
   async function loadPapers() {
     try {
-      const data = await api.listPapers(user.uid);
+      const data = await api.listPapers();
       setPapers(data.sort((a, b) => b.created_at.localeCompare(a.created_at)));
     } catch (e) {
       console.error(e);
@@ -36,7 +36,7 @@ export default function Dashboard({ onOpenPaper }) {
     setUploading(true);
     setError("");
     try {
-      await api.uploadPaper(file, user.uid);
+      await api.uploadPaper(file);
       await loadPapers();
     } catch (e) {
       setError(e.message);
@@ -48,7 +48,7 @@ export default function Dashboard({ onOpenPaper }) {
   async function handleDelete(e, paperId) {
     e.stopPropagation();
     try {
-      await api.deletePaper(paperId, user.uid);
+      await api.deletePaper(paperId);
       setPapers(p => p.filter(x => x.id !== paperId));
     } catch (e) {
       setError(e.message);
@@ -59,7 +59,7 @@ export default function Dashboard({ onOpenPaper }) {
     if (!q.trim()) { setSearchResults(null); return; }
     setSearching(true);
     try {
-      const res = await api.search(q, user.uid);
+      const res = await api.search(q);
       setSearchResults(res);
     } catch (e) {
       setError(e.message);

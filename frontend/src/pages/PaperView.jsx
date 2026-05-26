@@ -20,7 +20,7 @@ export default function PaperView({ paper, onBack }) {
 
   async function loadHistory() {
     try {
-      const history = await api.getChatHistory(paper.id, user.uid);
+      const history = await api.getChatHistory(paper.id);
       setMessages(history);
     } catch (e) {
       console.error(e);
@@ -34,7 +34,7 @@ export default function PaperView({ paper, onBack }) {
     setMessages(prev => [...prev, { role: "user", content: userMsg }]);
     setLoading(true);
     try {
-      const res = await api.chat(paper.id, userMsg, user.uid);
+      const res = await api.chat(paper.id, userMsg);
       setMessages(prev => [...prev, { role: "assistant", content: res.answer }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: "assistant", content: `Error: ${e.message}` }]);
