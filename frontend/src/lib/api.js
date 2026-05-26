@@ -55,13 +55,22 @@ export const api = {
       body: JSON.stringify({ query, top_k: 10 }),
     }),
 
-  listDemoPapers: () =>
-    fetch(`${BASE}/papers/demo`).then(r => r.json()),
+  listDemoPapers: async () => {
+    const res = await fetch(`${BASE}/papers/demo`);
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+    return res.json();
+  },
 
-  demoChat: (paperId, message) =>
-    fetch(`${BASE}/chat/demo`, {
+  demoChat: async (paperId, message) => {
+    const res = await fetch(`${BASE}/chat/demo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ paper_id: paperId, message }),
-    }).then(r => r.json()),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || `Request failed: ${res.status}`);
+    }
+    return res.json();
+  },
 };
