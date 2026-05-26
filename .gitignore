@@ -1,0 +1,21 @@
+# Environment variables - NEVER commit these
+backend/.env
+frontend/.env
+
+# Local data
+backend/chroma_db/
+backend/uploaded_pdfs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.egg-info/
+
+# Node
+frontend/node_modules/
+
+# Misc
+.DS_Store
+*.log
