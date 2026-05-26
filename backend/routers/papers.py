@@ -60,7 +60,13 @@ def delete_paper(paper_id: str, user_id: str = Depends(verify_token)):
         raise HTTPException(404, "Paper not found.")
     if paper["user_id"] != user_id:
         raise HTTPException(403, "Access denied.")
-    delete_pdf(paper_id, paper["filename"])
-    delete_paper_vectors(paper_id)
+    try:
+        delete_pdf(paper_id, paper["filename"])
+    except Exception:
+        pass
+    try:
+        delete_paper_vectors(paper_id)
+    except Exception:
+        pass
     delete_paper_doc(paper_id)
     return {"deleted": True}

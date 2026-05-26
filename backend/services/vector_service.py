@@ -87,10 +87,13 @@ def cross_paper_search(query: str, top_k: int = 10) -> List[dict]:
 
 
 def delete_paper_vectors(paper_id: str) -> None:
-    client = get_qdrant_client()
-    client.delete(
-        collection_name=COLLECTION_NAME,
-        points_selector=Filter(
-            must=[FieldCondition(key="paper_id", match=MatchValue(value=paper_id))]
-        ),
-    )
+    try:
+        client = get_qdrant_client()
+        client.delete(
+            collection_name=COLLECTION_NAME,
+            points_selector=Filter(
+                must=[FieldCondition(key="paper_id", match=MatchValue(value=paper_id))]
+            ),
+        )
+    except Exception:
+        pass  # vectors may not exist, that's fine

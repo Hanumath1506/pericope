@@ -33,6 +33,11 @@ export default function Dashboard({ onOpenPaper }) {
       setError("Please upload a PDF file.");
       return;
     }
+    // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
+      setError("File too large. Maximum size is 10MB.");
+      return;
+    }
     setUploading(true);
     setError("");
     try {
