@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { api } from "../lib/api";
+import "./Dashboard.css";
 
 export default function Dashboard({ onOpenPaper }) {
   const { user, logout } = useAuth();
@@ -33,7 +34,6 @@ export default function Dashboard({ onOpenPaper }) {
       setError("Please upload a PDF file.");
       return;
     }
-    // 10MB limit
     if (file.size > 10 * 1024 * 1024) {
       setError("File too large. Maximum size is 10MB.");
       return;
@@ -75,7 +75,7 @@ export default function Dashboard({ onOpenPaper }) {
 
   return (
     <div style={styles.wrap}>
-      <header style={styles.header}>
+      <header className="dashboard-header">
         <div style={styles.logo}>
           <span style={styles.logoText}>pericope</span>
           <span style={styles.logoBeta}>beta</span>
@@ -87,8 +87,7 @@ export default function Dashboard({ onOpenPaper }) {
         </div>
       </header>
 
-      <main style={styles.main}>
-        {/* Upload zone */}
+      <main className="dashboard-main">
         <div
           style={{ ...styles.dropzone, ...(dragOver ? styles.dropzoneActive : {}) }}
           onDragOver={e => { e.preventDefault(); setDragOver(true); }}
@@ -109,12 +108,11 @@ export default function Dashboard({ onOpenPaper }) {
             <>
               <p style={styles.dropIcon}>⊕</p>
               <p style={styles.dropText}>Drop a PDF or click to upload</p>
-              <p style={styles.dropSub}>Research papers, preprints, reports</p>
+              <p style={styles.dropSub}>Max 10MB • Research papers, preprints, reports</p>
             </>
           )}
         </div>
 
-        {/* Search bar */}
         {papers.length > 1 && (
           <div style={styles.searchRow}>
             <input
@@ -129,12 +127,11 @@ export default function Dashboard({ onOpenPaper }) {
               onClick={() => handleSearch(searchQuery)}
               disabled={searching}
             >
-              {searching ? "Searching..." : "Search"}
+              {searching ? "..." : "Search"}
             </button>
           </div>
         )}
 
-        {/* Search results */}
         {searchResults && (
           <div style={styles.searchResults}>
             <p style={styles.sectionLabel}>Synthesis</p>
@@ -155,7 +152,6 @@ export default function Dashboard({ onOpenPaper }) {
 
         {error && <p style={styles.error}>{error}</p>}
 
-        {/* Papers grid */}
         {!searchResults && papers.length > 0 && (
           <div style={styles.section}>
             <p style={styles.sectionLabel}>Your library — {papers.length} paper{papers.length !== 1 ? "s" : ""}</p>
@@ -214,10 +210,6 @@ function statusStyle(status) {
 
 const styles = {
   wrap: { minHeight: "100vh", display: "flex", flexDirection: "column" },
-  header: {
-    borderBottom: "1px solid var(--border)", padding: "0 48px",
-    height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between",
-  },
   logo: { display: "flex", alignItems: "baseline", gap: "8px" },
   logoText: { fontFamily: "'DM Serif Display', serif", fontSize: "20px" },
   logoBeta: {
@@ -225,51 +217,43 @@ const styles = {
     color: "var(--accent)", letterSpacing: "0.1em",
     background: "var(--accent-glow)", padding: "2px 6px", borderRadius: "3px",
   },
-  userRow: { display: "flex", alignItems: "center", gap: "12px" },
+  userRow: { display: "flex", alignItems: "center", gap: "8px" },
   avatar: { width: "28px", height: "28px", borderRadius: "50%" },
-  userName: { fontSize: "13px", color: "var(--text-2)" },
+  userName: { fontSize: "13px", color: "var(--text-2)", display: "none" },
   logoutBtn: {
     background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius)",
     color: "var(--text-2)", fontSize: "12px", padding: "4px 10px", cursor: "pointer",
   },
-  main: { flex: 1, padding: "48px", maxWidth: "1000px", margin: "0 auto", width: "100%" },
   dropzone: {
     border: "1px dashed var(--border-light)", borderRadius: "8px",
-    padding: "48px", textAlign: "center", cursor: "pointer",
+    padding: "clamp(24px, 5vw, 48px)", textAlign: "center", cursor: "pointer",
     transition: "all 0.15s", marginBottom: "32px",
   },
   dropzoneActive: { borderColor: "var(--accent)", background: "var(--accent-glow)" },
   dropIcon: { fontSize: "28px", color: "var(--accent)", marginBottom: "12px" },
   dropText: { fontSize: "16px", color: "var(--text)", marginBottom: "6px" },
   dropSub: { fontSize: "13px", color: "var(--text-3)" },
-  searchRow: { display: "flex", gap: "12px", marginBottom: "24px" },
+  searchRow: { display: "flex", gap: "8px", marginBottom: "24px" },
   searchBar: {
     flex: 1, background: "var(--bg-2)", border: "1px solid var(--border-light)",
     borderRadius: "var(--radius)", color: "var(--text)", fontSize: "14px",
-    padding: "10px 14px", outline: "none",
+    padding: "10px 14px", outline: "none", minWidth: 0,
   },
   searchBtn: {
     background: "var(--accent)", border: "none", borderRadius: "var(--radius)",
     color: "#0d0d0d", fontSize: "13px", fontWeight: 500,
-    padding: "10px 20px", cursor: "pointer",
+    padding: "10px 16px", cursor: "pointer", flexShrink: 0,
   },
   searchResults: {
     background: "var(--bg-2)", border: "1px solid var(--border)",
     borderRadius: "8px", padding: "24px", marginBottom: "32px",
   },
-  synthesis: {
-    fontSize: "14px", color: "var(--text)", lineHeight: 1.8, marginBottom: "24px",
-  },
-  sourceCard: {
-    borderTop: "1px solid var(--border)", paddingTop: "16px", marginTop: "16px",
-  },
+  synthesis: { fontSize: "14px", color: "var(--text)", lineHeight: 1.8, marginBottom: "24px" },
+  sourceCard: { borderTop: "1px solid var(--border)", paddingTop: "16px", marginTop: "16px" },
   sourceTitle: {
-    fontSize: "12px", color: "var(--accent)", fontFamily: "'DM Mono', monospace",
-    marginBottom: "8px",
+    fontSize: "12px", color: "var(--accent)", fontFamily: "'DM Mono', monospace", marginBottom: "8px",
   },
-  sourceChunk: {
-    fontSize: "12px", color: "var(--text-2)", lineHeight: 1.7, marginBottom: "6px",
-  },
+  sourceChunk: { fontSize: "12px", color: "var(--text-2)", lineHeight: 1.7, marginBottom: "6px" },
   clearBtn: {
     marginTop: "16px", background: "none", border: "1px solid var(--border)",
     borderRadius: "var(--radius)", color: "var(--text-2)", fontSize: "12px",
@@ -282,7 +266,11 @@ const styles = {
     letterSpacing: "0.1em", color: "var(--text-3)",
     textTransform: "uppercase", marginBottom: "16px",
   },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(min(280px, 100%), 1fr))",
+    gap: "16px",
+  },
   card: {
     background: "var(--bg-2)", border: "1px solid var(--border)",
     borderRadius: "6px", padding: "20px", transition: "border-color 0.15s",
