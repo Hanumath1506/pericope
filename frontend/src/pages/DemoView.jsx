@@ -8,6 +8,7 @@ export default function DemoView({ onSignIn }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingPapers, setLoadingPapers] = useState(true);
+  const [tab, setTab] = useState("chat");
   const bottomRef = useRef();
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function DemoView({ onSignIn }) {
   function openPaper(paper) {
     setActivePaper(paper);
     setMessages([]);
+    setTab("chat");
   }
 
   return (
@@ -61,7 +63,7 @@ export default function DemoView({ onSignIn }) {
       {activePaper ? (
         <div style={styles.chatLayout}>
           <aside style={styles.sidebar}>
-            <button style={styles.backBtn} onClick={() => { setActivePaper(null); setMessages([]); }}>
+            <button style={styles.backBtn} onClick={() => { setActivePaper(null); setMessages([]); setTab("chat"); }}>
               ← All papers
             </button>
             <div style={styles.paperMeta}>
@@ -81,7 +83,7 @@ export default function DemoView({ onSignIn }) {
             <div>
               <p style={styles.metaLabel}>Suggested questions</p>
               {["What problem does this paper solve?", "What is the main methodology?", "What are the key results?", "What are the limitations?"].map(q => (
-                <button key={q} style={styles.suggestion} onClick={() => setInput(q)}>
+                <button key={q} style={styles.suggestion} onClick={() => { setInput(q); setTab("chat"); }}>
                   {q}
                 </button>
               ))}
@@ -93,41 +95,92 @@ export default function DemoView({ onSignIn }) {
           </aside>
 
           <main style={styles.chatMain}>
-            <div style={styles.messages}>
-              {messages.length === 0 && (
-                <div style={styles.emptyChat}>
-                  <p style={styles.emptyChatIcon}>◎</p>
-                  <p style={styles.emptyChatText}>Ask anything about this paper</p>
-                  <p style={styles.emptyChatSub}>Answers are grounded in the paper's actual content</p>
-                </div>
-              )}
-              {messages.map((msg, i) => (
-                <div key={i} style={{ ...styles.msg, ...(msg.role === "user" ? styles.msgUser : styles.msgAssistant) }}>
-                  <span style={styles.msgRole}>{msg.role === "user" ? "you" : "ai"}</span>
-                  <p style={styles.msgContent}>{msg.content}</p>
-                </div>
+            {/* Tab nav */}
+            <div style={styles.tabNav}>
+              {["chat", "summary"].map(t => (
+                <button
+                  key={t}
+                  style={{ ...styles.tabBtn, ...(tab === t ? styles.tabBtnActive : {}) }}
+                  onClick={() => setTab(t)}
+                >
+                  {t === "chat" ? "💬 Chat" : "📋 Summary"}
+                </button>
               ))}
-              {loading && (
-                <div style={{ ...styles.msg, ...styles.msgAssistant }}>
-                  <span style={styles.msgRole}>ai</span>
-                  <p style={{ ...styles.msgContent, color: "var(--text-3)" }}>Thinking…</p>
+            </div>
+
+            {tab === "chat" ? (
+              <>
+                <div style={styles.messages}>
+                  {messages.length === 0 && (
+                    <div style={styles.emptyChat}>
+                      <p style={styles.emptyChatIcon}>◎</p>
+                      <p style={styles.emptyChatText}>Ask anything about this paper</p>
+                      <p style={styles.emptyChatSub}>Answers are grounded in the paper's actual content</p>
+                    </div>
+                  )}
+                  {messages.map((msg, i) => (
+                    <div key={i} style={{ ...styles.msg, ...(msg.role === "user" ? styles.msgUser : styles.msgAssistant) }}>
+                      <span style={styles.msgRole}>{msg.role === "user" ? "you" : "ai"}</span>
+                      <p style={styles.msgContent}>{msg.content}</p>
+                    </div>
+                  ))}
+                  {loading && (
+                    <div style={{ ...styles.msg, ...styles.msgAssistant }}>
+                      <span style={styles.msgRole}>ai</span>
+                      <p style={{ ...styles.msgContent, color: "var(--text-3)" }}>Thinking…</p>
+                    </div>
+                  )}
+                  <div ref={bottomRef} />
                 </div>
-              )}
-              <div ref={bottomRef} />
-            </div>
-            <div style={styles.inputRow}>
-              <input
-                style={styles.input}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && sendMessage()}
-                placeholder="Ask a question about this paper..."
-                disabled={loading}
-              />
-              <button style={styles.sendBtn} onClick={sendMessage} disabled={loading || !input.trim()}>
-                Send
-              </button>
-            </div>
+                <div style={styles.inputRow}>
+                  <input
+                    style={styles.input}
+                    value={input}
+                    onChange={e => setInput(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && sendMessage()}
+                    placeholder="Ask a question about this paper..."
+                    disabled={loading}
+                  />
+                  <button style={styles.sendBtn} onClick={sendMessage} disabled={loading || !input.trim()}>
+                    Send
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div style={styles.summaryWrap}>
+                {activePaper.summary ? (
+                  <>
+                    <h1 style={styles.summaryTitle}>{activePaper.summary.title}</h1>
+                    {activePaper.summary.summary && (
+                      <div style={styles.sectionBlock}>
+                        <p style={styles.sectionLabel}>Summary</p>
+                        <p style={styles.sectionContent}>{activePaper.summary.summary}</p>
+                      </div>
+                    )}
+                    {activePaper.summary.methodology && (
+                      <div style={styles.sectionBlock}>
+                        <p style={styles.sectionLabel}>Methodology</p>
+                        <p style={styles.sectionContent}>{activePaper.summary.methodology}</p>
+                      </div>
+                    )}
+                    {activePaper.summary.contributions && (
+                      <div style={styles.sectionBlock}>
+                        <p style={styles.sectionLabel}>Key Contributions</p>
+                        <ul style={styles.list}>
+                          {activePaper.summary.contributions.map((c, i) => (
+                            <li key={i} style={styles.listItem}>
+                              <span style={styles.bullet}>—</span>{c}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p style={{ color: "var(--text-3)" }}>Summary not available.</p>
+                )}
+              </div>
+            )}
           </main>
         </div>
       ) : (
@@ -270,6 +323,16 @@ const styles = {
   },
   signInBoxText: { fontSize: "12px", color: "var(--text-2)", textAlign: "center" },
   chatMain: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" },
+  tabNav: {
+    display: "flex", gap: "4px", padding: "12px 24px",
+    borderBottom: "1px solid var(--border)", flexShrink: 0,
+  },
+  tabBtn: {
+    background: "none", border: "none", borderRadius: "var(--radius)",
+    color: "var(--text-2)", fontSize: "13px", padding: "8px 12px",
+    cursor: "pointer",
+  },
+  tabBtnActive: { background: "var(--bg-3)", color: "var(--text)" },
   messages: {
     flex: 1, overflowY: "auto", padding: "32px 48px",
     display: "flex", flexDirection: "column", gap: "24px",
@@ -295,7 +358,7 @@ const styles = {
   },
   inputRow: {
     padding: "16px 48px 24px", display: "flex", gap: "12px",
-    borderTop: "1px solid var(--border)",
+    borderTop: "1px solid var(--border)", flexShrink: 0,
   },
   input: {
     flex: 1, background: "var(--bg-2)", border: "1px solid var(--border-light)",
@@ -307,4 +370,22 @@ const styles = {
     color: "#0d0d0d", fontSize: "13px", fontWeight: 500,
     padding: "10px 20px", cursor: "pointer",
   },
+  summaryWrap: { padding: "48px", overflowY: "auto", maxWidth: "720px" },
+  summaryTitle: {
+    fontFamily: "'DM Serif Display', serif", fontSize: "28px",
+    lineHeight: 1.3, marginBottom: "40px",
+  },
+  sectionBlock: { marginBottom: "32px" },
+  sectionLabel: {
+    fontFamily: "'DM Mono', monospace", fontSize: "10px",
+    letterSpacing: "0.12em", color: "var(--accent)",
+    textTransform: "uppercase", marginBottom: "10px",
+  },
+  sectionContent: { fontSize: "14px", color: "var(--text-2)", lineHeight: 1.8 },
+  list: { listStyle: "none" },
+  listItem: {
+    display: "flex", gap: "12px", fontSize: "14px",
+    color: "var(--text-2)", lineHeight: 1.7, marginBottom: "8px",
+  },
+  bullet: { color: "var(--accent)", flexShrink: 0 },
 };
