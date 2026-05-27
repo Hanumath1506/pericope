@@ -1,0 +1,36 @@
+.login-wrap {
+  display: flex;
+  min-height: 100vh;
+}
+
+.login-left {
+  flex: 1;
+  padding: clamp(32px, 6vw, 80px) clamp(24px, 6vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+}
+
+.login-right {
+  width: clamp(300px, 35vw, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 48px);
+}
+
+@media (max-width: 640px) {
+  .login-wrap {
+    flex-direction: column;
+  }
+  .login-left {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 40px 24px;
+  }
+  .login-right {
+    width: 100%;
+    padding: 24px;
+  }
+}

@@ -26,6 +26,7 @@ body {
   font-weight: 300;
   line-height: 1.6;
   min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
 }
 
 h1, h2, h3 {
@@ -57,3 +58,8 @@ code, pre, .mono {
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+
+/* Mobile base */
+@media (max-width: 768px) {
+  body { font-size: 15px; }
+}

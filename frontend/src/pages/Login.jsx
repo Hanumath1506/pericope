@@ -1,20 +1,19 @@
+import "./Login.css";
 import { useAuth } from "../hooks/useAuth";
 
 export default function Login({ onTryDemo }) {
   return (
-    <div style={styles.wrap}>
-      <div style={styles.left}>
-        <div style={styles.tagline}>
-          <p style={styles.eyebrow}>AI Research Assistant</p>
-          <h1 style={styles.headline}>
-            Read smarter.<br />
-            <em>Ask deeper.</em>
-          </h1>
-          <p style={styles.sub}>
-            Upload any research paper. Ask questions, extract insights,
-            and understand methodology — grounded in the actual text.
-          </p>
-        </div>
+    <div className="login-wrap">
+      <div className="login-left">
+        <p style={styles.eyebrow}>AI Research Assistant</p>
+        <h1 style={styles.headline}>
+          Read smarter.<br />
+          <em>Ask deeper.</em>
+        </h1>
+        <p style={styles.sub}>
+          Upload any research paper. Ask questions, extract insights,
+          and understand methodology — grounded in the actual text.
+        </p>
         <div style={styles.features}>
           {["RAG-powered Q&A", "Auto-generated summaries", "Key contributions & methodology", "Cross-paper semantic search"].map(f => (
             <div key={f} style={styles.feature}>
@@ -24,7 +23,8 @@ export default function Login({ onTryDemo }) {
           ))}
         </div>
       </div>
-      <div style={styles.right}>
+
+      <div className="login-right">
         <div style={styles.card}>
           <h2 style={styles.cardTitle}>Sign in</h2>
           <p style={styles.cardSub}>Upload and manage your own papers.</p>
@@ -58,12 +58,6 @@ function GoogleIcon() {
 }
 
 const styles = {
-  wrap: { display: "flex", minHeight: "100vh" },
-  left: {
-    flex: 1, padding: "80px 64px",
-    display: "flex", flexDirection: "column", justifyContent: "center",
-    borderRight: "1px solid var(--border)",
-  },
   eyebrow: {
     fontFamily: "'DM Mono', monospace",
     fontSize: "11px", letterSpacing: "0.15em",
@@ -72,11 +66,11 @@ const styles = {
   },
   headline: {
     fontFamily: "'DM Serif Display', serif",
-    fontSize: "clamp(40px, 5vw, 64px)", lineHeight: 1.1,
+    fontSize: "clamp(32px, 5vw, 64px)", lineHeight: 1.1,
     color: "var(--text)", marginBottom: "24px",
   },
   sub: {
-    fontSize: "16px", color: "var(--text-2)",
+    fontSize: "clamp(14px, 2vw, 16px)", color: "var(--text-2)",
     maxWidth: "400px", lineHeight: 1.7, marginBottom: "48px",
   },
   features: { display: "flex", flexDirection: "column", gap: "12px" },
@@ -88,20 +82,13 @@ const styles = {
     width: "6px", height: "6px", borderRadius: "50%",
     background: "var(--accent)", flexShrink: 0,
   },
-  right: {
-    width: "420px", display: "flex",
-    alignItems: "center", justifyContent: "center",
-    padding: "48px",
-  },
   card: {
     width: "100%", background: "var(--bg-2)",
     border: "1px solid var(--border)",
-    borderRadius: "8px", padding: "40px",
+    borderRadius: "8px", padding: "clamp(24px, 4vw, 40px)",
   },
-  cardTitle: { fontSize: "24px", marginBottom: "8px" },
-  cardSub: {
-    color: "var(--text-2)", fontSize: "14px", marginBottom: "24px",
-  },
+  cardTitle: { fontSize: "clamp(20px, 3vw, 24px)", marginBottom: "8px" },
+  cardSub: { color: "var(--text-2)", fontSize: "14px", marginBottom: "24px" },
   btnDisabled: {
     width: "100%", padding: "12px 20px",
     display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",

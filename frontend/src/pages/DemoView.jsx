@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "../lib/api";
+import "./DemoView.css";
 
-export default function DemoView({ onSignIn }) {
+export default function DemoView() {
   const [papers, setPapers] = useState([]);
   const [activePaper, setActivePaper] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -48,8 +49,7 @@ export default function DemoView({ onSignIn }) {
 
   return (
     <div style={styles.wrap}>
-      {/* Header */}
-      <header style={styles.header}>
+      <header className="demo-header">
         <div style={styles.logo}>
           <span style={styles.logoText}>pericope</span>
           <span style={styles.logoBeta}>demo</span>
@@ -61,12 +61,12 @@ export default function DemoView({ onSignIn }) {
       </header>
 
       {activePaper ? (
-        <div style={styles.chatLayout}>
-          <aside style={styles.sidebar}>
+        <div className="demo-chat-layout">
+          <aside className="demo-sidebar">
             <button style={styles.backBtn} onClick={() => { setActivePaper(null); setMessages([]); setTab("chat"); }}>
               ← All papers
             </button>
-            <div style={styles.paperMeta}>
+            <div>
               <p style={styles.metaLabel}>Paper</p>
               <p style={styles.paperTitle}>{activePaper.summary?.title || activePaper.filename}</p>
             </div>
@@ -94,8 +94,7 @@ export default function DemoView({ onSignIn }) {
             </div>
           </aside>
 
-          <main style={styles.chatMain}>
-            {/* Tab nav */}
+          <main className="demo-chat-main">
             <div style={styles.tabNav}>
               {["chat", "summary"].map(t => (
                 <button
@@ -138,7 +137,7 @@ export default function DemoView({ onSignIn }) {
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && sendMessage()}
-                    placeholder="Ask a question about this paper..."
+                    placeholder="Ask a question..."
                     disabled={loading}
                   />
                   <button style={styles.sendBtn} onClick={sendMessage} disabled={loading || !input.trim()}>
@@ -184,7 +183,7 @@ export default function DemoView({ onSignIn }) {
           </main>
         </div>
       ) : (
-        <main style={styles.main}>
+        <main className="demo-main">
           <div style={styles.demoBanner}>
             <p style={styles.demoBannerTitle}>Demo Library</p>
             <p style={styles.demoBannerSub}>3 landmark AI papers — click any to start chatting</p>
@@ -227,10 +226,6 @@ export default function DemoView({ onSignIn }) {
 
 const styles = {
   wrap: { minHeight: "100vh", display: "flex", flexDirection: "column" },
-  header: {
-    borderBottom: "1px solid var(--border)", padding: "0 48px",
-    height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between",
-  },
   logo: { display: "flex", alignItems: "baseline", gap: "8px" },
   logoText: { fontFamily: "'DM Serif Display', serif", fontSize: "20px" },
   logoBeta: {
@@ -238,10 +233,10 @@ const styles = {
     color: "var(--text-2)", letterSpacing: "0.1em",
     background: "var(--bg-3)", padding: "2px 6px", borderRadius: "3px",
   },
-  headerRight: { display: "flex", alignItems: "center", gap: "16px" },
-  demoNote: { fontSize: "12px", color: "var(--text-3)", fontFamily: "'DM Mono', monospace" },
+  headerRight: { display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" },
+  demoNote: { fontSize: "11px", color: "var(--text-3)", fontFamily: "'DM Mono', monospace" },
   comingSoon: {
-    fontSize: "12px", color: "var(--accent)",
+    fontSize: "11px", color: "var(--accent)",
     fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em",
   },
   comingSoonBox: {
@@ -253,15 +248,109 @@ const styles = {
     fontSize: "14px", color: "var(--accent)",
     fontFamily: "'DM Mono', monospace", letterSpacing: "0.08em",
   },
-  main: { flex: 1, padding: "48px", maxWidth: "1000px", margin: "0 auto", width: "100%" },
+  backBtn: {
+    background: "none", border: "none", color: "var(--text-2)",
+    fontSize: "13px", cursor: "pointer", textAlign: "left", padding: 0,
+  },
+  metaLabel: {
+    fontFamily: "'DM Mono', monospace", fontSize: "10px",
+    letterSpacing: "0.12em", color: "var(--text-3)",
+    textTransform: "uppercase", marginBottom: "6px",
+  },
+  paperTitle: { fontSize: "14px", color: "var(--text)", lineHeight: 1.5, fontWeight: 500 },
+  tagWrap: { display: "flex", flexWrap: "wrap", gap: "6px" },
+  tag: {
+    fontSize: "10px", fontFamily: "'DM Mono', monospace",
+    background: "var(--bg-3)", border: "1px solid var(--border)",
+    padding: "2px 8px", borderRadius: "3px", color: "var(--text-2)",
+  },
+  suggestion: {
+    display: "block", width: "100%", background: "none",
+    border: "1px solid var(--border)", borderRadius: "var(--radius)",
+    color: "var(--text-2)", fontSize: "12px", padding: "8px 10px",
+    textAlign: "left", cursor: "pointer", marginBottom: "6px", lineHeight: 1.4,
+  },
+  signInBox: {
+    marginTop: "auto", background: "var(--bg-3)",
+    border: "1px solid var(--border)", borderRadius: "6px", padding: "16px",
+    display: "flex", flexDirection: "column", gap: "8px", alignItems: "center",
+  },
+  signInBoxText: { fontSize: "12px", color: "var(--text-2)", textAlign: "center" },
+  tabNav: {
+    display: "flex", gap: "4px", padding: "12px 24px",
+    borderBottom: "1px solid var(--border)", flexShrink: 0,
+  },
+  tabBtn: {
+    background: "none", border: "none", borderRadius: "var(--radius)",
+    color: "var(--text-2)", fontSize: "13px", padding: "8px 12px",
+    cursor: "pointer",
+  },
+  tabBtnActive: { background: "var(--bg-3)", color: "var(--text)" },
+  messages: {
+    flex: 1, overflowY: "auto", padding: "24px",
+    display: "flex", flexDirection: "column", gap: "24px",
+  },
+  emptyChat: {
+    flex: 1, display: "flex", flexDirection: "column",
+    alignItems: "center", justifyContent: "center", paddingTop: "60px",
+  },
+  emptyChatIcon: { fontSize: "32px", color: "var(--accent)", marginBottom: "16px" },
+  emptyChatText: { fontSize: "18px", color: "var(--text)", marginBottom: "8px" },
+  emptyChatSub: { fontSize: "13px", color: "var(--text-3)" },
+  msg: { display: "flex", flexDirection: "column", gap: "6px", maxWidth: "100%" },
+  msgUser: { alignSelf: "flex-end", alignItems: "flex-end" },
+  msgAssistant: { alignSelf: "flex-start", alignItems: "flex-start" },
+  msgRole: {
+    fontFamily: "'DM Mono', monospace", fontSize: "10px",
+    letterSpacing: "0.12em", color: "var(--text-3)", textTransform: "uppercase",
+  },
+  msgContent: {
+    fontSize: "14px", lineHeight: 1.7, color: "var(--text)",
+    background: "var(--bg-2)", border: "1px solid var(--border)",
+    borderRadius: "6px", padding: "12px 16px",
+    maxWidth: "100%", wordBreak: "break-word",
+  },
+  inputRow: {
+    padding: "12px 16px 16px", display: "flex", gap: "8px",
+    borderTop: "1px solid var(--border)", flexShrink: 0,
+  },
+  input: {
+    flex: 1, background: "var(--bg-2)", border: "1px solid var(--border-light)",
+    borderRadius: "var(--radius)", color: "var(--text)", fontSize: "14px",
+    padding: "10px 14px", outline: "none", minWidth: 0,
+  },
+  sendBtn: {
+    background: "var(--accent)", border: "none", borderRadius: "var(--radius)",
+    color: "#0d0d0d", fontSize: "13px", fontWeight: 500,
+    padding: "10px 16px", cursor: "pointer", flexShrink: 0,
+  },
+  summaryWrap: { padding: "24px", overflowY: "auto" },
+  summaryTitle: {
+    fontFamily: "'DM Serif Display', serif", fontSize: "clamp(20px, 4vw, 28px)",
+    lineHeight: 1.3, marginBottom: "32px",
+  },
+  sectionBlock: { marginBottom: "28px" },
+  sectionLabel: {
+    fontFamily: "'DM Mono', monospace", fontSize: "10px",
+    letterSpacing: "0.12em", color: "var(--accent)",
+    textTransform: "uppercase", marginBottom: "10px",
+  },
+  sectionContent: { fontSize: "14px", color: "var(--text-2)", lineHeight: 1.8 },
+  list: { listStyle: "none" },
+  listItem: {
+    display: "flex", gap: "12px", fontSize: "14px",
+    color: "var(--text-2)", lineHeight: 1.7, marginBottom: "8px",
+  },
+  bullet: { color: "var(--accent)", flexShrink: 0 },
   demoBanner: { marginBottom: "32px" },
   demoBannerTitle: {
-    fontFamily: "'DM Serif Display', serif", fontSize: "28px", marginBottom: "8px",
+    fontFamily: "'DM Serif Display', serif", fontSize: "clamp(22px, 4vw, 28px)", marginBottom: "8px",
   },
   demoBannerSub: { fontSize: "14px", color: "var(--text-2)" },
   loading: { color: "var(--text-3)", textAlign: "center", marginTop: "48px" },
   grid: {
-    display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(min(280px, 100%), 1fr))",
     gap: "16px", marginBottom: "48px",
   },
   card: {
@@ -281,111 +370,10 @@ const styles = {
     display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden",
   },
   tags: { display: "flex", flexWrap: "wrap", gap: "6px" },
-  tag: {
-    fontSize: "10px", fontFamily: "'DM Mono', monospace",
-    background: "var(--bg-3)", border: "1px solid var(--border)",
-    padding: "2px 8px", borderRadius: "3px", color: "var(--text-2)",
-  },
   uploadPrompt: {
     textAlign: "center", padding: "40px",
     border: "1px dashed var(--border-light)", borderRadius: "8px",
     display: "flex", flexDirection: "column", alignItems: "center", gap: "12px",
   },
   uploadPromptText: { fontSize: "16px", color: "var(--text-2)" },
-  chatLayout: { display: "flex", flex: 1, overflow: "hidden", height: "calc(100vh - 60px)" },
-  sidebar: {
-    width: "280px", borderRight: "1px solid var(--border)",
-    padding: "24px", display: "flex", flexDirection: "column", gap: "24px",
-    overflowY: "auto", flexShrink: 0,
-  },
-  backBtn: {
-    background: "none", border: "none", color: "var(--text-2)",
-    fontSize: "13px", cursor: "pointer", textAlign: "left", padding: 0,
-  },
-  paperMeta: {},
-  metaLabel: {
-    fontFamily: "'DM Mono', monospace", fontSize: "10px",
-    letterSpacing: "0.12em", color: "var(--text-3)",
-    textTransform: "uppercase", marginBottom: "6px",
-  },
-  paperTitle: { fontSize: "14px", color: "var(--text)", lineHeight: 1.5, fontWeight: 500 },
-  tagWrap: { display: "flex", flexWrap: "wrap", gap: "6px" },
-  suggestion: {
-    display: "block", width: "100%", background: "none",
-    border: "1px solid var(--border)", borderRadius: "var(--radius)",
-    color: "var(--text-2)", fontSize: "12px", padding: "8px 10px",
-    textAlign: "left", cursor: "pointer", marginBottom: "6px", lineHeight: 1.4,
-  },
-  signInBox: {
-    marginTop: "auto", background: "var(--bg-3)",
-    border: "1px solid var(--border)", borderRadius: "6px", padding: "16px",
-    display: "flex", flexDirection: "column", gap: "8px", alignItems: "center",
-  },
-  signInBoxText: { fontSize: "12px", color: "var(--text-2)", textAlign: "center" },
-  chatMain: { flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" },
-  tabNav: {
-    display: "flex", gap: "4px", padding: "12px 24px",
-    borderBottom: "1px solid var(--border)", flexShrink: 0,
-  },
-  tabBtn: {
-    background: "none", border: "none", borderRadius: "var(--radius)",
-    color: "var(--text-2)", fontSize: "13px", padding: "8px 12px",
-    cursor: "pointer",
-  },
-  tabBtnActive: { background: "var(--bg-3)", color: "var(--text)" },
-  messages: {
-    flex: 1, overflowY: "auto", padding: "32px 48px",
-    display: "flex", flexDirection: "column", gap: "24px",
-  },
-  emptyChat: {
-    flex: 1, display: "flex", flexDirection: "column",
-    alignItems: "center", justifyContent: "center", paddingTop: "80px",
-  },
-  emptyChatIcon: { fontSize: "32px", color: "var(--accent)", marginBottom: "16px" },
-  emptyChatText: { fontSize: "18px", color: "var(--text)", marginBottom: "8px" },
-  emptyChatSub: { fontSize: "13px", color: "var(--text-3)" },
-  msg: { display: "flex", flexDirection: "column", gap: "6px", maxWidth: "720px" },
-  msgUser: { alignSelf: "flex-end", alignItems: "flex-end" },
-  msgAssistant: { alignSelf: "flex-start", alignItems: "flex-start" },
-  msgRole: {
-    fontFamily: "'DM Mono', monospace", fontSize: "10px",
-    letterSpacing: "0.12em", color: "var(--text-3)", textTransform: "uppercase",
-  },
-  msgContent: {
-    fontSize: "14px", lineHeight: 1.7, color: "var(--text)",
-    background: "var(--bg-2)", border: "1px solid var(--border)",
-    borderRadius: "6px", padding: "12px 16px",
-  },
-  inputRow: {
-    padding: "16px 48px 24px", display: "flex", gap: "12px",
-    borderTop: "1px solid var(--border)", flexShrink: 0,
-  },
-  input: {
-    flex: 1, background: "var(--bg-2)", border: "1px solid var(--border-light)",
-    borderRadius: "var(--radius)", color: "var(--text)", fontSize: "14px",
-    padding: "10px 14px", outline: "none",
-  },
-  sendBtn: {
-    background: "var(--accent)", border: "none", borderRadius: "var(--radius)",
-    color: "#0d0d0d", fontSize: "13px", fontWeight: 500,
-    padding: "10px 20px", cursor: "pointer",
-  },
-  summaryWrap: { padding: "48px", overflowY: "auto", maxWidth: "720px" },
-  summaryTitle: {
-    fontFamily: "'DM Serif Display', serif", fontSize: "28px",
-    lineHeight: 1.3, marginBottom: "40px",
-  },
-  sectionBlock: { marginBottom: "32px" },
-  sectionLabel: {
-    fontFamily: "'DM Mono', monospace", fontSize: "10px",
-    letterSpacing: "0.12em", color: "var(--accent)",
-    textTransform: "uppercase", marginBottom: "10px",
-  },
-  sectionContent: { fontSize: "14px", color: "var(--text-2)", lineHeight: 1.8 },
-  list: { listStyle: "none" },
-  listItem: {
-    display: "flex", gap: "12px", fontSize: "14px",
-    color: "var(--text-2)", lineHeight: 1.7, marginBottom: "8px",
-  },
-  bullet: { color: "var(--accent)", flexShrink: 0 },
 };
